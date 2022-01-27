@@ -35,7 +35,7 @@ def fibonacci(n, computed = {0:0, 1:1}):
     return computed[n]
 
 
-#ref: https://pt.stackoverflow.com/questions/284984/algoritmo-bubble-sort-em-python
+#ref: https://www.codigofluente.com.br/aula-05-fibonacci-on-iterativa-e-o1-pela-formula/
 
 def main():
 	# Definição de argumentos
