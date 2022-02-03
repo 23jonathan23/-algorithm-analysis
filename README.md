@@ -30,3 +30,11 @@ python fibonacciDinamic.py -n 10
 ~~~shell 
 python fibonacciIterative.py -n 10
 ~~~
+
+## Comando para executar a analise dos algoritmos
+
+### Executar analise
+
+~~~shell 
+python alg.py -n 10
+~~~
