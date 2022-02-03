@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-DEFAULT_OUT = "out_fibonacci.txt"
+DEFAULT_OUT = "out_fibonacci_iterative.txt"
 DEFAULT_SEED = None
 
 DEFAULT_N_START = 1
@@ -29,17 +29,30 @@ import matplotlib.cm as cmx
 
 import timeit
 
-def fibonacci(n, computed = {0:0, 1:1}):
-    if n not in computed:
-        computed[n] = fibonacci(n-1, computed) + fibonacci(n-2, computed)
-    return computed[n]
+def fibIterative(n):
+    last = 1
+    penult = 1
+
+    if n == 1:
+      return penult
+    elif n == 2:
+      return last
+    else:
+      current = 0
+
+      for i in range(2, n):
+         current = last + penult
+         penult = last
+         last = current
+
+      return current 
 
 
 #ref: https://www.codigofluente.com.br/aula-05-fibonacci-on-iterativa-e-o1-pela-formula/
 
 def main():
 	# Definição de argumentos
-	parser = argparse.ArgumentParser(description='Fibonacci')
+	parser = argparse.ArgumentParser(description='Fibonacci Iterative')
 	help_msg = "arquivo de saída.  Padrão:{}".format(DEFAULT_OUT)
 	parser.add_argument("--out", "-o", help=help_msg, default=DEFAULT_OUT, type=str)
 
@@ -64,7 +77,7 @@ def main():
 
 	trials = args.trials
 	f = open(args.out, "w")
-	f.write("#Fibonacci\n")
+	f.write("#Fibonacci Iterative\n")
 	f.write("#n time_s_avg time_s_std (for {} trials)\n".format(trials))
 	m = 100
 	np.random.seed(args.seed)
@@ -77,7 +90,7 @@ def main():
 			entrada = n;
 			print("Entrada: {}".format(entrada))
 			tempo_inicio = timeit.default_timer()
-			resultados[trial] = fibonacci(entrada)
+			resultados[trial] = fibIterative(entrada)
 			tempo_fim = timeit.default_timer()
 			tempos[trial] = tempo_fim - tempo_inicio
 			print("Saída: {}".format(resultados[trial]))
