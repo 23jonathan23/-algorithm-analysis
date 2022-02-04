@@ -332,7 +332,7 @@ class FibonacciRecursive(Experimento):
 		print("pcov:                  {}".format(pcov))
 
 	def g(self, n, c):
-		return n * n * c
+		return (n ** 2) * c
 
 class FibonacciIterative(Experimento):
 
@@ -374,6 +374,46 @@ class FibonacciIterative(Experimento):
 	def g(self, n, c):
 		return n*c
 
+class FibonacciMath(Experimento):
+
+	def __init__(self, args):
+		super().__init__(args)
+		self.id = "fm"
+		self.script = "fibonacci_math.py"
+		self.output = "fibonacci_math.txt"
+
+		indice_cor = 4
+
+		# configurações de plotagem
+		self.medicao_legenda = "fibonacci matemático medido"
+		self.medicao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor)
+		self.medicao_formato = formatos[indice_cor]
+
+		self.aproximacao_legenda = "fibonacci matemático aproximado"
+		self.aproximacao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor+1)
+
+		# configurações de plotagem upper bound g(x)
+		self.gn1_constante = 0.000001
+		self.gn1_legenda = "g(n)= c x n, c={:.2e}".format(self.gn1_constante)
+
+		# configurações de plotagem lower bound g(x)
+		self.gn2_constante = 0.00000001
+		self.gn2_legenda = "g(n)= c x n, c={:.2e}".format(self.gn2_constante)
+
+		self.multiplo = 1
+		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
+
+	def executa_aproximacao(self):
+		# realiza aproximação
+		parametros, pcov = opt.curve_fit(funcao_linear, xdata=self.tamanhos, ydata=self.medias)
+		self.aproximados = [funcao_linear(x, *parametros) for x in self.tamanhos_aproximados ]
+		print("aproximados:           {}".format(self.aproximados))
+		print("parametros_otimizados: {}".format(parametros))
+		print("pcov:                  {}".format(pcov))
+
+	def g(self, n, c):
+		return n * c
+
 
 def main():
 	'''
@@ -405,7 +445,7 @@ def main():
 	help_msg = "figura (extensão .png ou .pdf) ou nenhum para apresentar na tela.  Padrão:{}".format(DEFAULT_OUTPUT)
 	parser.add_argument("--out", "-o", help=help_msg, default=DEFAULT_OUTPUT, type=str)
 
-	help_msg = "algoritmos (fd=fibonacci dinâmico), (fr=fibonacci recursivo), (fi=fibonacci iterativo) ou nenhum para executar todos.  Padrão:{}".format(DEFAULT_ALGORITMOS)
+	help_msg = "algoritmos (fd=fibonacci dinâmico), (fr=fibonacci recursivo), (fi=fibonacci iterativo), (fm=fibonacci matemático) ou nenhum para executar todos.  Padrão:{}".format(DEFAULT_ALGORITMOS)
 	parser.add_argument("--algoritmos", "-l", help=help_msg, default=DEFAULT_ALGORITMOS, type=str)
 
 	help_msg = "verbosity logging level (INFO=%d DEBUG=%d)" % (logging.INFO, logging.DEBUG)
@@ -433,7 +473,7 @@ def main():
 	imprime_config(args)
 
 	# lista de experimentos disponíveis TspNaive(args),
-	experimentos = [FibonacciDinamic(args), FibonacciRecursive(args), FibonacciIterative(args)]
+	experimentos = [FibonacciDinamic(args), FibonacciRecursive(args), FibonacciIterative(args), FibonacciMath(args)]
 
 	for e in experimentos:
 		if args.algoritmos is None or e.id in args.algoritmos:
