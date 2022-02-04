@@ -262,7 +262,7 @@ class FibonacciDinamic(Experimento):
 		self.script = "fibonacci_dinamic.py"
 		self.output = "fibonacci_dinamic.txt"
 
-		indice_cor = 2
+		indice_cor = 1
 
 		# configurações de plotagem
 		self.medicao_legenda = "fibonacci dinâmico medido"
@@ -274,11 +274,11 @@ class FibonacciDinamic(Experimento):
 
 		# configurações de plotagem upper bound g(x)
 		self.gn1_constante = 0.000001
-		self.gn1_legenda = "g(n)=n, c={:.2e}".format(self.gn1_constante)
+		self.gn1_legenda = "g(n)=c x n, c={:.2e}".format(self.gn1_constante)
 
 		# configurações de plotagem lower bound g(x)
 		self.gn2_constante = 0.00000001
-		self.gn2_legenda = "g(n)=n, c={:.2e}".format(self.gn2_constante)
+		self.gn2_legenda = "g(n)=c x n, c={:.2e}".format(self.gn2_constante)
 
 		self.multiplo = 1
 		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
@@ -314,11 +314,11 @@ class FibonacciRecursive(Experimento):
 
 		# configurações de plotagem upper bound g(x)
 		self.gn1_constante = 0.000001
-		self.gn1_legenda = "g(n)=n!, c={:.2e}".format(self.gn1_constante)
+		self.gn1_legenda = "g(n)=n^2, c={:.2e}".format(self.gn1_constante)
 
 		# configurações de plotagem lower bound g(x)
 		self.gn2_constante = 0.00000001
-		self.gn2_legenda = "g(n)=n!, c={:.2e}".format(self.gn2_constante)
+		self.gn2_legenda = "g(n)=n^2, c={:.2e}".format(self.gn2_constante)
 
 		self.multiplo = 1
 		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
@@ -326,13 +326,13 @@ class FibonacciRecursive(Experimento):
 	def executa_aproximacao(self):
 		# realiza aproximação
 		parametros, pcov = opt.curve_fit(funcao_linear, xdata=self.tamanhos, ydata=self.medias)
-		self.aproximados = [funcao_fatorial(x, *parametros) for x in self.tamanhos_aproximados ]
+		self.aproximados = [funcao_quadratica(x, *parametros) for x in self.tamanhos_aproximados ]
 		print("aproximados:           {}".format(self.aproximados))
 		print("parametros_otimizados: {}".format(parametros))
 		print("pcov:                  {}".format(pcov))
 
 	def g(self, n, c):
-		return funcao_fatorial(n, c)
+		return n * n * c
 
 class FibonacciIterative(Experimento):
 
@@ -342,7 +342,7 @@ class FibonacciIterative(Experimento):
 		self.script = "fibonacci_iterative.py"
 		self.output = "fibonacci_iterative.txt"
 
-		indice_cor = 2
+		indice_cor = 3
 
 		# configurações de plotagem
 		self.medicao_legenda = "fibonacci iterativo medido"
@@ -354,11 +354,11 @@ class FibonacciIterative(Experimento):
 
 		# configurações de plotagem upper bound g(x)
 		self.gn1_constante = 0.000001
-		self.gn1_legenda = "g(n)=n, c={:.2e}".format(self.gn1_constante)
+		self.gn1_legenda = "g(n)= c x n, c={:.2e}".format(self.gn1_constante)
 
 		# configurações de plotagem lower bound g(x)
 		self.gn2_constante = 0.00000001
-		self.gn2_legenda = "g(n)=n, c={:.2e}".format(self.gn2_constante)
+		self.gn2_legenda = "g(n)=c x n, c={:.2e}".format(self.gn2_constante)
 
 		self.multiplo = 1
 		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
