@@ -10,6 +10,9 @@
 
 
 
+from cProfile import label
+
+
 try:
 	import sys
 	import os
@@ -61,8 +64,7 @@ mapa_cor = plt.get_cmap('tab20')  # carrega tabela de cores conforme dicionário
 mapeamento_normalizado = colors.Normalize(vmin=0, vmax=19)  # mapeamento em 20 cores
 mapa_escalar = cmx.ScalarMappable(norm=mapeamento_normalizado, cmap=mapa_cor)  # lista de cores final
 
-formatos = ['.', 'v', 'o', '^', '<', '>', '1', '2', '3', '4', 's', 'p', '*', 'h']
-
+formatos = ['_', '.', 'v', 'o', '^', '<', '>', '1', '2', '3', '4', 's', 'p', '*', 'h']
 
 # https://matplotlib.org/3.3.2/api/_as_gen/matplotlib.pyplot.plot.html
 # '.'	point marker
@@ -156,6 +158,7 @@ def imprime_config(args):
 
 
 class Experimento(ABC):
+	computador = ""
 
 	@abstractmethod
 	def __init__(self, args):
@@ -177,14 +180,6 @@ class Experimento(ABC):
 
 		self.aproximacao_legenda = "aproximacao_legenda"
 		self.aproximacao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor+1)
-
-		# configurações de plotagem upper bound g(x)
-		self.gn1_constante = 1
-		self.gn1_legenda = "g(n)=??, c=%d" % self.gn1_constante
-
-		# configurações de plotagem lower bound g(x)
-		self.gn2_constante = 1
-		self.gn2_legenda = "g(n)=??, c=%d" % self.gn2_constante
 
 		self.multiplo = 1
 
@@ -217,11 +212,12 @@ class Experimento(ABC):
 		f = open(self.output, "r")
 
 		for l in f:
-			#print("linha: {}".format(l))
 			if l[0] != "#":
 				self.tamanhos.append(int(l.split(" ")[0]))
 				self.medias.append(float(l.split(" ")[1]))
 				self.desvios.append(float(l.split(" ")[2]))
+			if l[0] == "#" and l[1] == "#" and Experimento.computador == "":
+				Experimento.computador = l.replace('#',"")
 		f.close()
 
 	def imprime_dados(self):
@@ -234,7 +230,7 @@ class Experimento(ABC):
 	@abstractmethod
 	def executa_aproximacao(self):
 		pass
-
+	
 	def plota_aproximacao(self):
 		plt.plot(self.tamanhos_aproximados, self.aproximados, label=self.aproximacao_legenda, color=self.aproximacao_cor_rgb)
 
@@ -246,12 +242,6 @@ class Experimento(ABC):
 		valores = [self.g(n, constante) for n in self.tamanhos_aproximados]
 		logging.debug("valores: {}".format(valores))
 		plt.plot(self.tamanhos_aproximados, valores, linestyle=estilo_linha, label=legenda, color=cor)
-
-	def plota_assintotica(self):
-		if self.gn1_constante is not None:
-			self.plota_gn(self.gn1_constante, self.gn1_legenda, self.aproximacao_cor_rgb, "dotted")
-		if self.gn2_constante is not None:
-			self.plota_gn(self.gn2_constante, self.gn2_legenda, self.aproximacao_cor_rgb, "dashed")
 
 
 class FibonacciDinamic(Experimento):
@@ -271,14 +261,6 @@ class FibonacciDinamic(Experimento):
 
 		self.aproximacao_legenda = "fibonacci dinâmico aproximado"
 		self.aproximacao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor+1)
-
-		# configurações de plotagem upper bound g(x)
-		self.gn1_constante = 0.000001
-		self.gn1_legenda = "g(n)=c x n, c={:.2e}".format(self.gn1_constante)
-
-		# configurações de plotagem lower bound g(x)
-		self.gn2_constante = 0.00000001
-		self.gn2_legenda = "g(n)=c x n, c={:.2e}".format(self.gn2_constante)
 
 		self.multiplo = 1
 		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
@@ -312,14 +294,6 @@ class FibonacciRecursive(Experimento):
 		self.aproximacao_legenda = "fibonacci recursivo aproximado"
 		self.aproximacao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor+1)
 
-		# configurações de plotagem upper bound g(x)
-		self.gn1_constante = 0.000001
-		self.gn1_legenda = "g(n)=n^2, c={:.2e}".format(self.gn1_constante)
-
-		# configurações de plotagem lower bound g(x)
-		self.gn2_constante = 0.00000001
-		self.gn2_legenda = "g(n)=n^2, c={:.2e}".format(self.gn2_constante)
-
 		self.multiplo = 1
 		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
 
@@ -351,14 +325,6 @@ class FibonacciIterative(Experimento):
 
 		self.aproximacao_legenda = "fibonacci iterativo aproximado"
 		self.aproximacao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor+1)
-
-		# configurações de plotagem upper bound g(x)
-		self.gn1_constante = 0.000001
-		self.gn1_legenda = "g(n)= c x n, c={:.2e}".format(self.gn1_constante)
-
-		# configurações de plotagem lower bound g(x)
-		self.gn2_constante = 0.00000001
-		self.gn2_legenda = "g(n)=c x n, c={:.2e}".format(self.gn2_constante)
 
 		self.multiplo = 1
 		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
@@ -392,14 +358,6 @@ class FibonacciMath(Experimento):
 		self.aproximacao_legenda = "fibonacci matemático aproximado"
 		self.aproximacao_cor_rgb = mapa_escalar.to_rgba(2*indice_cor+1)
 
-		# configurações de plotagem upper bound g(x)
-		self.gn1_constante = 0.000001
-		self.gn1_legenda = "g(n)= c x n, c={:.2e}".format(self.gn1_constante)
-
-		# configurações de plotagem lower bound g(x)
-		self.gn2_constante = 0.00000001
-		self.gn2_legenda = "g(n)= c x n, c={:.2e}".format(self.gn2_constante)
-
 		self.multiplo = 1
 		self.tamanhos_aproximados = range(self.args.nmax * self.multiplo+1)
 
@@ -412,7 +370,7 @@ class FibonacciMath(Experimento):
 		print("pcov:                  {}".format(pcov))
 
 	def g(self, n, c):
-		return n * c
+		return c
 
 
 def main():
@@ -473,7 +431,7 @@ def main():
 	imprime_config(args)
 
 	# lista de experimentos disponíveis TspNaive(args),
-	experimentos = [FibonacciDinamic(args), FibonacciRecursive(args), FibonacciIterative(args), FibonacciMath(args)]
+	experimentos = [FibonacciDinamic(args), FibonacciRecursive(args), FibonacciIterative(args)]
 
 	for e in experimentos:
 		if args.algoritmos is None or e.id in args.algoritmos:
@@ -484,14 +442,11 @@ def main():
 			e.imprime_dados()
 			e.plota_medicao()
 			e.plota_aproximacao()
-			e.plota_assintotica()
 
 	# configurações gerais
 	plt.legend()
-	#plt.xticks(range(args.nstart, args.nstop+1, args.nstep))
-	plt.title("Fibonacci - Impacto de n".format(args.trials, args.seed))
+	plt.title("Fibonacci - Impacto de n \n {}".format(Experimento.computador))
 	plt.xlabel("Tamanho da instância (n)")
-	plt.ylabel("Função")
 
 	if args.out is None:
 		# mostra

@@ -20,6 +20,7 @@ import os
 import argparse
 import logging
 import subprocess
+import platform
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -64,6 +65,7 @@ def main():
 	f = open(args.out, "w")
 	f.write("#Fibonacci Recursive\n")
 	f.write("#n time_s_avg time_s_std (for {} trials)\n".format(trials))
+	f.write("##Computer: {} - {} - {}\n".format(platform.node(), platform.platform(), platform.machine()))
 	m = 100
 	np.random.seed(args.seed)
 	for n in range(args.nstart, args.nstop+1, args.nstep): #range(1, 100):
