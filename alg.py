@@ -235,8 +235,11 @@ class Experimento(ABC):
 		plt.plot(self.tamanhos_aproximados, self.aproximados, label=self.aproximacao_legenda, color=self.aproximacao_cor_rgb)
 
 	def plota_medicao(self):
-		plt.errorbar(x=self.tamanhos, y=self.medias, yerr=self.desvios, fmt=self.medicao_formato,
+		if self.args.aproximacao:
+			plt.errorbar(x=self.tamanhos, y=self.medias, yerr=self.desvios, fmt=self.medicao_formato,
 					 label=self.medicao_legenda, color=self.medicao_cor_rgb, linewidth=2)
+		else:
+			plt.plot(self.tamanhos, self.medias, label=self.medicao_legenda, color=self.medicao_cor_rgb, linewidth=2)
 
 	def plota_gn(self, constante, legenda, cor, estilo_linha):
 		valores = [self.g(n, constante) for n in self.tamanhos_aproximados]
@@ -385,6 +388,9 @@ def main():
 	help_msg = "semente aleatória"
 	parser.add_argument("--seed", "-s", help=help_msg, default=DEFAULT_SEED, type=int)
 
+	help_msg = "aproximação.          Padrão:{}".format(DEFAULT_N_STOP)
+	parser.add_argument("--aproximacao", "-apr", help=help_msg, default=False, type=bool)
+
 	help_msg = "n stop.          Padrão:{}".format(DEFAULT_N_STOP)
 	parser.add_argument("--nstop", "-n", help=help_msg, default=DEFAULT_N_STOP, type=int)
 
@@ -431,7 +437,7 @@ def main():
 	imprime_config(args)
 
 	# lista de experimentos disponíveis TspNaive(args),
-	experimentos = [FibonacciDinamic(args), FibonacciRecursive(args), FibonacciIterative(args)]
+	experimentos = [FibonacciDinamic(args), FibonacciRecursive(args), FibonacciIterative(args), FibonacciMath(args)]
 
 	for e in experimentos:
 		if args.algoritmos is None or e.id in args.algoritmos:
@@ -441,7 +447,9 @@ def main():
 			e.executa_aproximacao()
 			e.imprime_dados()
 			e.plota_medicao()
-			e.plota_aproximacao()
+
+			if args.aproximacao:
+				e.plota_aproximacao()
 
 	# configurações gerais
 	plt.legend()
