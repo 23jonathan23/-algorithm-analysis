@@ -144,6 +144,10 @@ def funcao_linear(n, cpu):
 	'''
 	return (n * cpu)
 
+def funcao_exponencial(n,cpu):
+    return (2**n)*cpu
+
+
 
 def imprime_config(args):
 	'''
@@ -302,14 +306,14 @@ class FibonacciRecursive(Experimento):
 
 	def executa_aproximacao(self):
 		# realiza aproximação
-		parametros, pcov = opt.curve_fit(funcao_linear, xdata=self.tamanhos, ydata=self.medias)
-		self.aproximados = [funcao_quadratica(x, *parametros) for x in self.tamanhos_aproximados ]
+		parametros, pcov = opt.curve_fit(funcao_exponencial, xdata=self.tamanhos, ydata=self.medias)
+		self.aproximados = [funcao_exponencial(x, *parametros) for x in self.tamanhos_aproximados ]
 		print("aproximados:           {}".format(self.aproximados))
 		print("parametros_otimizados: {}".format(parametros))
 		print("pcov:                  {}".format(pcov))
 
 	def g(self, n, c):
-		return (n ** 2) * c
+		return (2**n)*c
 
 class FibonacciIterative(Experimento):
 
@@ -381,7 +385,6 @@ def main():
 	Programa principal
 	:return:
 	'''
-
 	# Definição de argumentos
 	parser = argparse.ArgumentParser(description='Trabalho Fibonacci')
 
@@ -455,7 +458,7 @@ def main():
 	plt.legend()
 	plt.title("Fibonacci - Impacto de n \n {}".format(Experimento.computador))
 	plt.xlabel("Tamanho da instância (n)")
-
+	plt.ylabel("Tempo em Segundos")
 	if args.out is None:
 		# mostra
 		plt.show()
